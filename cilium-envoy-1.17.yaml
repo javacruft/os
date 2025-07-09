@@ -2,7 +2,7 @@
 package:
   name: cilium-envoy-1.17
   version: "1.17.5"
-  epoch: 1
+  epoch: 2
   description: Envoy with additional cilium plugins
   copyright:
     - license: Apache-2.0
@@ -29,7 +29,6 @@ environment:
       - busybox
       - ca-certificates-bundle
       - clang-17
-      - clang-17-dev
       - cmake
       - coreutils # for GNU install
       - git
@@ -37,12 +36,9 @@ environment:
       - go
       - isl-dev
       - libtool
-      - llvm-libcxx-17
-      - llvm-libcxx-17-dev
-      - llvm-libcxxabi-17
-      - llvm-lld-17
-      - llvm17
-      - llvm17-dev
+      - libcxx1-17-dev
+      - lld-17
+      - llvm-17-dev
       - openjdk-11
       - patch
       - python3-dev
