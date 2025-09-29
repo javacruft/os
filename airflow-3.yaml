@@ -1,7 +1,7 @@
 package:
   name: airflow-3
   version: "3.0.6"
-  epoch: 1
+  epoch: 2
   description: Platform to programmatically author, schedule, and monitor workflows
   options:
     #  There is a dependency on libarrow.so although it
@@ -99,6 +99,18 @@ pipeline:
       yarn run build
       rm -rf node_modules
 
+  - runs: |
+      curl https://raw.githubusercontent.com/apache/airflow/constraints-${{package.version}}/constraints-${{vars.py-version}}.txt > constraints-${{vars.py-version}}.txt
+
+  - uses: py/tw/bump-constraints
+    with:
+      constraints-file: constraints-${{vars.py-version}}.txt
+      packages: |
+        urllib3==2.5.0 # CVE-2025-50181 CVE-2025-50182
+        aiohttp==3.12.14 # GHSA-9548-qrrj-x5pj
+        starlette==0.47.2 # GHSA-2c2j-9gv5-cj73
+        h2==4.3.0 # GHSA-847f-9342-265h
+
   - name: "Build and install the main package"
     runs: |
       # requires EPOCH to be later that 1980
@@ -109,22 +121,10 @@ pipeline:
 
       python${{vars.py-version}} -m build --wheel
       # We need to use uv to avoid `resolution to deep` errors`
-      uv pip install --verbose --upgrade --resolution highest --prefix=${{targets.contextdir}}/opt/airflow dist/*.whl
+      uv pip install --verbose --constraints constraints-${{vars.py-version}}.txt --resolution highest --prefix=${{targets.contextdir}}/opt/airflow dist/*.whl
 
       # We need to add this additionally  because graphviz is an optional dependency https://github.com/apache/airflow/blob/d2c9563605ca6d3dc40ec0fc2fe6853c86641441/airflow-core/pyproject.toml#L157
-      uv pip install --verbose --upgrade --prefix=${{targets.contextdir}}/opt/airflow graphviz
-
-      # CVE-2025-50181 CVE-2025-50182
-      uv pip install --verbose --upgrade --prefix=${{targets.contextdir}}/opt/airflow urllib3==2.5.0
-
-      # GHSA-9548-qrrj-x5pj
-      uv pip install --verbose --upgrade --prefix=${{targets.contextdir}}/opt/airflow aiohttp==3.12.14
-
-      # GHSA-2c2j-9gv5-cj73
-      uv pip install --verbose --upgrade --prefix=${{targets.contextdir}}/opt/airflow starlette==0.47.2
-
-      # GHSA-847f-9342-265h
-      uv pip install --verbose --upgrade --prefix=${{targets.contextdir}}/opt/airflow h2==4.3.0
+      uv pip install --verbose --constraints constraints-${{vars.py-version}}.txt --resolution highest --prefix=${{targets.contextdir}}/opt/airflow graphviz
 
   - name: "Build and install the additional provider packages"
     runs: |
@@ -152,7 +152,7 @@ pipeline:
 
         # Build and install the wheel
         python${{vars.py-version}} -m build --wheel
-        uv pip install --verbose --upgrade --resolution highest --prefix=${{targets.contextdir}}/opt/airflow dist/*.whl
+        uv pip install --verbose --constraints constraints-${{vars.py-version}}.txt --resolution highest --prefix=${{targets.contextdir}}/opt/airflow dist/*.whl
         cd -
       done
 
