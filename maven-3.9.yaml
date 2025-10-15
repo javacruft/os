@@ -16,14 +16,14 @@ environment:
       - busybox
       - ca-certificates-bundle
       - maven
-      - openjdk-11-default-jdk
+      - openjdk-21-default-jdk
 
 pipeline:
   - uses: git-checkout
     with:
       repository: https://github.com/apache/maven
       tag: maven-${{package.version}}
-      expected-commit: 3e54c93a704957b63ee3494413a2b544fd3d825b
+      expected-commit: 3e54c93a704957b63ee3494413a2b544fd3d821b
       destination: maven
 
   - uses: auth/maven
@@ -68,9 +68,9 @@ test:
   environment:
     contents:
       packages:
-        - openjdk-11-default-jdk
+        - openjdk-21-default-jdk
     environment:
-      JAVA_HOME: /usr/lib/jvm/java-11-openjdk
+      JAVA_HOME: /usr/lib/jvm/java-21-openjdk
   pipeline:
     - runs: |
         mvn --version
